@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Text to Speech App</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <h1>🗣️ Text to Speech App</h1>
+
+    <textarea id="text" placeholder="Enter your text here..."></textarea>
+
+    <div class="control-group">
+      <label for="voiceSelect">Choose Voice:</label>
+      <select id="voiceSelect"></select>
+    </div>
+
+    <div class="control-group">
+      <label for="rate">Speech Speed: <span id="rateValue">1</span></label>
+      <input type="range" id="rate" min="0.5" max="2" step="0.1" value="1">
+    </div>
+
+    <button id="speakBtn">🔊 Speak</button>
+  </div>
+
+  <footer>
+    &copy; 2025 Text to Speech App | Designed by Veeraveasrapu Charan Sai
+  </footer>
+
+  <script>
+    function populateVoices() {
+      let voices = speechSynthesis.getVoices();
+      let voiceSelect = document.getElementById('voiceSelect');
+      voiceSelect.innerHTML = '';
+      voices.forEach((voice, index) => {
+        let option = document.createElement('option');
+        option.value = index;
+        option.textContent = `${voice.name} (${voice.lang})`;
+        voiceSelect.appendChild(option);
+      });
+    }
+
+    function speakText() {
+      let text = document.getElementById('text').value;
+      if (!text.trim()) return;
+      let speech = new SpeechSynthesisUtterance(text);
+      let voices = speechSynthesis.getVoices();
+      let selectedVoice = document.getElementById('voiceSelect').value;
+      if (voices[selectedVoice]) {
+        speech.voice = voices[selectedVoice];
+      }
+      let rate = document.getElementById('rate').value;
+      speech.rate = parseFloat(rate);
+      speech.pitch = 1;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(speech);
+    }
+
+    document.getElementById('rate').addEventListener('input', function () {
+      document.getElementById('rateValue').textContent = this.value;
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        speakText();
+      }
+    });
+
+    document.getElementById('speakBtn').addEventListener('click', speakText);
+    window.speechSynthesis.onvoiceschanged = populateVoices;
+  </script>
+</body>
+</html>
